@@ -266,72 +266,108 @@ class UIComponents {
     }
 }
 
+function isButtonElement(element) {
+    return element && element.tagName.toLowerCase() === 'button';
+}
+
+function isLinkElement(element) {
+    return element && element.tagName.toLowerCase() === 'a';
+}
+
+function getPageHref(pageName) {
+    const isPagesRoute = window.location.pathname.includes('/pages/');
+    return isPagesRoute ? `${pageName}.html` : `pages/${pageName}.html`;
+}
+
+function navigateTo(href) {
+    window.location.href = href;
+}
+
+function openLoginModal() {
+    UIComponents.showModal(UIComponents.createLoginForm());
+
+    const form = document.getElementById('loginForm');
+    if (form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const email = formData.get('email');
+            const password = formData.get('password');
+
+            const result = await auth.login(email, password);
+            if (result.success) {
+                UIComponents.hideModal();
+                UIComponents.showNotification('Logged in successfully!', 'success');
+                updateUIForAuth();
+            } else {
+                UIComponents.showNotification(result.error, 'error');
+            }
+        });
+    }
+}
+
+function openSignupModal() {
+    UIComponents.showModal(UIComponents.createSignupForm());
+
+    const form = document.getElementById('signupForm');
+    if (form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const userData = {
+                username: formData.get('username'),
+                email: formData.get('email'),
+                password: formData.get('password'),
+            };
+
+            const result = await auth.signup(userData);
+            if (result.success) {
+                UIComponents.hideModal();
+                UIComponents.showNotification('Account created successfully!', 'success');
+                updateUIForAuth();
+            } else {
+                UIComponents.showNotification(result.error, 'error');
+            }
+        });
+    }
+}
+
+async function handleLogout(event) {
+    if (event) {
+        event.preventDefault();
+    }
+
+    await auth.logout();
+    UIComponents.showNotification('Logged out successfully', 'success');
+    updateUIForAuth();
+}
+
+function setAuthControlState(element, { text, href, onClick }) {
+    if (!element) return;
+
+    element.textContent = text;
+    element.onclick = null;
+
+    if (isLinkElement(element)) {
+        if (href) {
+            element.href = href;
+        } else {
+            element.removeAttribute('href');
+        }
+    } else {
+        element.removeAttribute('href');
+        element.type = 'button';
+    }
+
+    if (typeof onClick === 'function') {
+        element.onclick = onClick;
+    }
+}
+
 // ===================================
 // Event Handlers
 // ===================================
 function setupEventHandlers() {
-    // Login button (modal only for button elements)
-    const loginBtn = document.getElementById('loginBtn');
-    if (loginBtn && loginBtn.tagName.toLowerCase() === 'button') {
-        loginBtn.addEventListener('click', () => {
-            UIComponents.showModal(UIComponents.createLoginForm());
-
-            // Setup form submission
-            const form = document.getElementById('loginForm');
-            if (form) {
-                form.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const formData = new FormData(form);
-                    const email = formData.get('email');
-                    const password = formData.get('password');
-
-                    const result = await auth.login(email, password);
-                    if (result.success) {
-                        UIComponents.hideModal();
-                        UIComponents.showNotification('Logged in successfully!', 'success');
-                        updateUIForAuth();
-                    } else {
-                        UIComponents.showNotification(result.error, 'error');
-                    }
-                });
-            }
-        });
-    }
-
-    // Signup buttons (modal only for button elements)
-    const signupButtons = ['signupBtn', 'ctaSignupBtn'];
-    signupButtons.forEach(btnId => {
-        const btn = document.getElementById(btnId);
-        if (btn && btn.tagName.toLowerCase() === 'button') {
-            btn.addEventListener('click', () => {
-                UIComponents.showModal(UIComponents.createSignupForm());
-
-                // Setup form submission
-                const form = document.getElementById('signupForm');
-                if (form) {
-                    form.addEventListener('submit', async (e) => {
-                        e.preventDefault();
-                        const formData = new FormData(form);
-                        const userData = {
-                            username: formData.get('username'),
-                            email: formData.get('email'),
-                            password: formData.get('password'),
-                        };
-
-                        const result = await auth.signup(userData);
-                        if (result.success) {
-                            UIComponents.hideModal();
-                            UIComponents.showNotification('Account created successfully!', 'success');
-                            updateUIForAuth();
-                        } else {
-                            UIComponents.showNotification(result.error, 'error');
-                        }
-                    });
-                }
-            });
-        }
-    });
-
     // Theme Toggle
     const themeToggle = document.getElementById('themeToggle');
     if (themeToggle) {
@@ -439,6 +475,9 @@ function setupEventHandlers() {
             }
         });
     }
+
+    // Keep auth controls consistent for both links and buttons.
+    updateUIForAuth();
 }
 
 // ===================================
@@ -448,40 +487,34 @@ function updateUIForAuth() {
     const user = state.getUser();
     const loginBtn = document.getElementById('loginBtn');
     const signupBtn = document.getElementById('signupBtn');
+    const loginHref = getPageHref('login');
+    const signupHref = getPageHref('signup');
+    const profileHref = getPageHref('profile');
 
     if (user && state.isAuthenticated) {
-        // Update buttons/links to show user menu
-        if (loginBtn) {
-            loginBtn.textContent = user.username;
-            loginBtn.href = '/pages/profile.html';
-            loginBtn.onclick = null;
-        }
-        if (signupBtn) {
-            signupBtn.textContent = 'Logout';
-            signupBtn.href = '#';
-            signupBtn.classList.remove('btn-primary');
-            signupBtn.classList.add('btn-secondary');
-            signupBtn.onclick = async (e) => {
-                e.preventDefault();
-                await auth.logout();
-                UIComponents.showNotification('Logged out successfully', 'success');
-                updateUIForAuth();
-            };
-        }
+        setAuthControlState(loginBtn, {
+            text: user.username,
+            href: isLinkElement(loginBtn) ? profileHref : null,
+            onClick: isButtonElement(loginBtn) ? () => navigateTo(profileHref) : null,
+        });
+
+        setAuthControlState(signupBtn, {
+            text: 'Logout',
+            href: isLinkElement(signupBtn) ? '#' : null,
+            onClick: handleLogout,
+        });
     } else {
-        // Reset to default unauthenticated state
-        if (loginBtn) {
-            loginBtn.textContent = 'Login';
-            loginBtn.href = 'pages/login.html';
-            loginBtn.onclick = null;
-        }
-        if (signupBtn) {
-            signupBtn.textContent = 'Sign Up';
-            signupBtn.href = 'pages/signup.html';
-            signupBtn.classList.remove('btn-secondary');
-            signupBtn.classList.add('btn-primary');
-            signupBtn.onclick = null;
-        }
+        setAuthControlState(loginBtn, {
+            text: 'Login',
+            href: isLinkElement(loginBtn) ? loginHref : null,
+            onClick: isButtonElement(loginBtn) ? openLoginModal : null,
+        });
+
+        setAuthControlState(signupBtn, {
+            text: 'Sign Up',
+            href: isLinkElement(signupBtn) ? signupHref : null,
+            onClick: isButtonElement(signupBtn) ? openSignupModal : null,
+        });
     }
 }
 
