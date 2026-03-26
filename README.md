@@ -2,7 +2,7 @@
 
 > **A fresh, modern design by removing non-core components to create a clear, enjoyable user experience focused on core value**
 
-## 🚀 Overview (Edited by Vandana)
+## 🚀 Overview 
 
 BLT-Next is the next-generation architecture for OWASP BLT (Bug Logging Tool), migrating from a Django monolith to a lightweight, high performance static frontend with dynamic features powered by Cloudflare Python Workers.
 
@@ -73,7 +73,8 @@ BLT-Next/
 
 For more details on setting up Cloudflare Workers or custom configurations, please see our [Contributing Guide](CONTRIBUTING.md).
 
-4. **Update API endpoint** in `src/assets/js/main.js`:
+### Update API endpoint
+ Update the API base URL in `src/assets/js/main.js`:
    ```javascript
    const CONFIG = {
        API_BASE_URL: 'https://your-worker.workers.dev',
