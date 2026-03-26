@@ -283,53 +283,54 @@ function navigateTo(href) {
     window.location.href = href;
 }
 
+function bindFormSubmit(form, handler) {
+    if (!form) return;
+
+    form.onsubmit = async (e) => {
+        e.preventDefault();
+        await handler(new FormData(form));
+    };
+}
+
 function openLoginModal() {
     UIComponents.showModal(UIComponents.createLoginForm());
 
     const form = document.getElementById('loginForm');
-    if (form) {
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(form);
-            const email = formData.get('email');
-            const password = formData.get('password');
+    bindFormSubmit(form, async (formData) => {
+        const email = formData.get('email');
+        const password = formData.get('password');
 
-            const result = await auth.login(email, password);
-            if (result.success) {
-                UIComponents.hideModal();
-                UIComponents.showNotification('Logged in successfully!', 'success');
-                updateUIForAuth();
-            } else {
-                UIComponents.showNotification(result.error, 'error');
-            }
-        });
-    }
+        const result = await auth.login(email, password);
+        if (result.success) {
+            UIComponents.hideModal();
+            UIComponents.showNotification('Logged in successfully!', 'success');
+            updateUIForAuth();
+        } else {
+            UIComponents.showNotification(result.error, 'error');
+        }
+    });
 }
 
 function openSignupModal() {
     UIComponents.showModal(UIComponents.createSignupForm());
 
     const form = document.getElementById('signupForm');
-    if (form) {
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(form);
-            const userData = {
-                username: formData.get('username'),
-                email: formData.get('email'),
-                password: formData.get('password'),
-            };
+    bindFormSubmit(form, async (formData) => {
+        const userData = {
+            username: formData.get('username'),
+            email: formData.get('email'),
+            password: formData.get('password'),
+        };
 
-            const result = await auth.signup(userData);
-            if (result.success) {
-                UIComponents.hideModal();
-                UIComponents.showNotification('Account created successfully!', 'success');
-                updateUIForAuth();
-            } else {
-                UIComponents.showNotification(result.error, 'error');
-            }
-        });
-    }
+        const result = await auth.signup(userData);
+        if (result.success) {
+            UIComponents.hideModal();
+            UIComponents.showNotification('Account created successfully!', 'success');
+            updateUIForAuth();
+        } else {
+            UIComponents.showNotification(result.error, 'error');
+        }
+    });
 }
 
 async function handleLogout(event) {
@@ -424,9 +425,7 @@ function setupEventHandlers() {
         }
 
         // Handle submit for standalone login page
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(loginForm);
+        bindFormSubmit(loginForm, async (formData) => {
             const email = formData.get('email');
             const password = formData.get('password');
             const remember = formData.has('remember');
@@ -448,9 +447,7 @@ function setupEventHandlers() {
     // Signup page handlers (bound in external JS to avoid inline event attributes)
     const signupForm = document.getElementById('signupForm');
     if (signupForm) {
-        signupForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(signupForm);
+        bindFormSubmit(signupForm, async (formData) => {
             const userData = {
                 username: formData.get('username'),
                 email: formData.get('email'),
