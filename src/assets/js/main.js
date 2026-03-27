@@ -597,9 +597,13 @@ function openLoginModal() {
 
             const result = await auth.login(email, password, remember);
             if (result.success) {
-                UIComponents.hideModal();
-                UIComponents.showNotification('Logged in successfully!', 'success');
-                updateUIForAuth();
+                 if (window.uiComponents && UIComponents.hideModal) {
+        UIComponents.hideModal();
+    }
+
+    UIComponents.showNotification('Logged in successfully!', 'success');
+    updateUIForAuth();
+    
             } else {
                 UIComponents.showNotification(result.error, 'error');
             }
@@ -609,23 +613,6 @@ function openLoginModal() {
         // ✅ REQUIRED fallback
         window.location.href = getPageHref('login');
     }
-}
-
-    const form = document.getElementById('loginForm');
-    bindFormSubmit(form, async (formData) => {
-        const email = formData.get('email');
-        const password = formData.get('password');
-        const remember = formData.has('remember');
-
-        const result = await auth.login(email, password, remember);
-        if (result.success) {
-            UIComponents.hideModal();
-            UIComponents.showNotification('Logged in successfully!', 'success');
-            updateUIForAuth();
-        } else {
-            UIComponents.showNotification(result.error, 'error');
-        }
-    });
 }
 
 function openSignupModal() {
@@ -648,9 +635,12 @@ function openSignupModal() {
 
             const result = await auth.signup(userData);
             if (result.success) {
+               if (window.uiComponents && UIComponents.hideModal) {
                 UIComponents.hideModal();
-                UIComponents.showNotification('Account created successfully!', 'success');
-                updateUIForAuth();
+    }
+
+            UIComponents.showNotification('Account created successfully!', 'success');
+            updateUIForAuth();
             } else {
                 UIComponents.showNotification(result.error, 'error');
             }
@@ -660,31 +650,6 @@ function openSignupModal() {
         // ✅ REQUIRED fallback
         window.location.href = getPageHref('signup');
     }
-}
-
-    const form = document.getElementById('signupForm');
-    bindFormSubmit(form, async (formData) => {
-        const userData = {
-            username: formData.get('username'),
-            email: formData.get('email'),
-            password: formData.get('password'),
-        };
-        const confirmPassword = formData.get('confirmPassword');
-
-        if (userData.password !== confirmPassword) {
-            UIComponents.showNotification('Passwords do not match', 'error');
-            return;
-        }
-
-        const result = await auth.signup(userData);
-        if (result.success) {
-            UIComponents.hideModal();
-            UIComponents.showNotification('Account created successfully!', 'success');
-            updateUIForAuth();
-        } else {
-            UIComponents.showNotification(result.error, 'error');
-        }
-    });
 }
 
 async function handleLogout(event) {
