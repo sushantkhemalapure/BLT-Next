@@ -1023,6 +1023,11 @@ function updateActiveButton() {
       btn.setAttribute("aria-current", "page");
     }
   });
+  const maxVisiblePage = buttons.length;
+
+if (currentPage > maxVisiblePage) {
+  currentPage = maxVisiblePage;
+}
 }
 
 document.addEventListener("htmx:afterSwap", () => {
@@ -1044,7 +1049,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 document.getElementById("next-page")?.addEventListener("click", () => {
-  const maxPage = Math.ceil(totalResearchers / rowsPerPage);
+  const maxPage = document.querySelectorAll(".page-btn").length;
   if (currentPage < maxPage) {
     currentPage++;
     updateLeaderboardPagination();
