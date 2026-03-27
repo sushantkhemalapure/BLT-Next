@@ -586,7 +586,10 @@ function bindFormSubmit(form, handler) {
 }
 
 function openLoginModal() {
-    if (window.uiComponents && UIComponents.showModal && UIComponents.createLoginForm) {
+    if (
+  typeof UIComponents?.showModal === "function" &&
+  typeof UIComponents?.createLoginForm === "function"
+       ) {
         UIComponents.showModal(UIComponents.createLoginForm());
 
         const form = document.getElementById('modal-loginForm');
@@ -616,7 +619,10 @@ function openLoginModal() {
 }
 
 function openSignupModal() {
-    if (window.uiComponents && UIComponents.showModal && UIComponents.createSignupForm) {
+    if (
+  typeof UIComponents?.showModal === "function" &&
+  typeof UIComponents?.createSignupForm === "function"
+       ) {
         UIComponents.showModal(UIComponents.createSignupForm());
 
         const form = document.getElementById('modal-signupForm');
