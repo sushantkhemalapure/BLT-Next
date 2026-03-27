@@ -600,12 +600,13 @@ function openLoginModal() {
 
             const result = await auth.login(email, password, remember);
             if (result.success) {
-                 if (window.uiComponents && UIComponents.hideModal) {
+    if (typeof UIComponents?.hideModal === "function") {
         UIComponents.hideModal();
     }
 
     UIComponents.showNotification('Logged in successfully!', 'success');
     updateUIForAuth();
+
     
             } else {
                 UIComponents.showNotification(result.error, 'error');
@@ -641,9 +642,9 @@ function openSignupModal() {
 
             const result = await auth.signup(userData);
             if (result.success) {
-               if (window.uiComponents && UIComponents.hideModal) {
-                UIComponents.hideModal();
-    }
+               if (typeof UIComponents?.hideModal === "function") {
+    UIComponents.hideModal();
+}
 
             UIComponents.showNotification('Account created successfully!', 'success');
             updateUIForAuth();
