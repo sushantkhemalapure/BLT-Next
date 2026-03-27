@@ -324,7 +324,7 @@ class UIComponents {
         const isDark = document.documentElement.classList.contains('dark');
         const container = UIComponents.createModalCard('Welcome Back', 'Sign in to your account');
         const form = document.createElement('form');
-        form.id = 'loginForm';
+        form.id = 'modal-loginForm';
         form.style.cssText = 'display: flex; flex-direction: column; gap: 1rem;';
 
         form.appendChild(UIComponents.createInputGroup({
@@ -380,7 +380,7 @@ class UIComponents {
         const isDark = document.documentElement.classList.contains('dark');
         const container = UIComponents.createModalCard('Create Your Account', 'Join the BLT community today.');
         const form = document.createElement('form');
-        form.id = 'signupForm';
+        form.id = 'modal-signupForm';
         form.style.cssText = 'display: flex; flex-direction: column; gap: 1rem;';
 
         form.appendChild(UIComponents.createInputGroup({
@@ -589,7 +589,7 @@ function openLoginModal() {
     if (window.uiComponents && UIComponents.showModal && UIComponents.createLoginForm) {
         UIComponents.showModal(UIComponents.createLoginForm());
 
-        const form = document.getElementById('loginForm');
+        const form = document.getElementById('modal-loginForm');
         bindFormSubmit(form, async (formData) => {
             const email = formData.get('email');
             const password = formData.get('password');
@@ -619,7 +619,7 @@ function openSignupModal() {
     if (window.uiComponents && UIComponents.showModal && UIComponents.createSignupForm) {
         UIComponents.showModal(UIComponents.createSignupForm());
 
-        const form = document.getElementById('signupForm');
+        const form = document.getElementById('modal-signupForm');
         bindFormSubmit(form, async (formData) => {
             const userData = {
                 username: formData.get('username'),
