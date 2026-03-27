@@ -264,6 +264,299 @@ class UIComponents {
             setTimeout(() => notification.remove(), 300);
         }, 3000);
     }
+
+    static showModal(content) {
+        UIComponents.hideModal();
+
+        const overlay = document.createElement('div');
+        overlay.id = 'blt-modal-overlay';
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.style.cssText = `
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 9998;
+        `;
+
+        overlay.addEventListener('click', (event) => {
+            if (event.target === overlay) {
+                UIComponents.hideModal();
+            }
+        });
+
+        const onKeyDown = (event) => {
+            if (event.key === 'Escape') {
+                UIComponents.hideModal();
+            }
+        };
+
+        UIComponents.modalKeydownHandler = onKeyDown;
+        document.addEventListener('keydown', onKeyDown);
+        document.body.style.overflow = 'hidden';
+
+        if (content && content instanceof HTMLElement) {
+            overlay.appendChild(content);
+        }
+        document.body.appendChild(overlay);
+    }
+
+    static hideModal() {
+        const overlay = document.getElementById('blt-modal-overlay');
+        if (overlay) {
+            overlay.remove();
+        }
+
+        if (UIComponents.modalKeydownHandler) {
+            document.removeEventListener('keydown', UIComponents.modalKeydownHandler);
+            UIComponents.modalKeydownHandler = null;
+        }
+
+        document.body.style.overflow = '';
+    }
+
+    static createLoginForm() {
+        const isDark = document.documentElement.classList.contains('dark');
+        const container = UIComponents.createModalCard('Welcome Back', 'Sign in to your account');
+        const form = document.createElement('form');
+        form.id = 'loginForm';
+        form.style.cssText = 'display: flex; flex-direction: column; gap: 1rem;';
+
+        form.appendChild(UIComponents.createInputGroup({
+            label: 'Email',
+            id: 'email',
+            name: 'email',
+            type: 'email',
+            placeholder: 'you@example.com',
+            required: true,
+            isDark,
+        }));
+
+        form.appendChild(UIComponents.createInputGroup({
+            label: 'Password',
+            id: 'password',
+            name: 'password',
+            type: 'password',
+            placeholder: '********',
+            required: true,
+            isDark,
+        }));
+
+        const optionsRow = document.createElement('div');
+        optionsRow.style.cssText = 'display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; font-size: 0.875rem;';
+
+        const rememberLabel = document.createElement('label');
+        rememberLabel.style.cssText = `display: flex; align-items: center; gap: 0.5rem; color: ${isDark ? '#9ca3af' : '#4b5563'};`;
+        const remember = document.createElement('input');
+        remember.type = 'checkbox';
+        remember.name = 'remember';
+        remember.id = 'rememberMe';
+        remember.style.cssText = 'width: 1rem; height: 1rem;';
+        rememberLabel.appendChild(remember);
+        rememberLabel.appendChild(document.createTextNode('Remember me'));
+
+        const forgotLink = document.createElement('a');
+        forgotLink.href = getPageHref('forgot-password');
+        forgotLink.textContent = 'Forgot password?';
+        forgotLink.style.cssText = 'color: #dc2626; font-weight: 600; text-decoration: none;';
+
+        optionsRow.appendChild(rememberLabel);
+        optionsRow.appendChild(forgotLink);
+        form.appendChild(optionsRow);
+
+        const submit = UIComponents.createSubmitButton('Sign In');
+        form.appendChild(submit);
+        container.appendChild(form);
+
+        return container;
+    }
+
+    static createSignupForm() {
+        const isDark = document.documentElement.classList.contains('dark');
+        const container = UIComponents.createModalCard('Create Your Account', 'Join the BLT community today.');
+        const form = document.createElement('form');
+        form.id = 'signupForm';
+        form.style.cssText = 'display: flex; flex-direction: column; gap: 1rem;';
+
+        form.appendChild(UIComponents.createInputGroup({
+            label: 'Username',
+            id: 'username',
+            name: 'username',
+            type: 'text',
+            placeholder: 'johndoe',
+            required: true,
+            minLength: 3,
+            isDark,
+        }));
+
+        form.appendChild(UIComponents.createInputGroup({
+            label: 'Email Address',
+            id: 'email',
+            name: 'email',
+            type: 'email',
+            placeholder: 'you@example.com',
+            required: true,
+            isDark,
+        }));
+
+        const passwordGroup = UIComponents.createInputGroup({
+            label: 'Password',
+            id: 'password',
+            name: 'password',
+            type: 'password',
+            placeholder: '********',
+            required: true,
+            minLength: 8,
+            isDark,
+        });
+        const passwordHint = document.createElement('p');
+        passwordHint.textContent = 'Must be at least 8 characters';
+        passwordHint.style.cssText = `margin: 0.375rem 0 0; font-size: 0.75rem; color: ${isDark ? '#9ca3af' : '#6b7280'};`;
+        passwordGroup.appendChild(passwordHint);
+        form.appendChild(passwordGroup);
+
+        form.appendChild(UIComponents.createInputGroup({
+            label: 'Confirm Password',
+            id: 'confirmPassword',
+            name: 'confirmPassword',
+            type: 'password',
+            placeholder: '********',
+            required: true,
+            minLength: 8,
+            isDark,
+        }));
+
+        const termsLabel = document.createElement('label');
+        termsLabel.style.cssText = `display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.75rem; line-height: 1.5; color: ${isDark ? '#9ca3af' : '#4b5563'};`;
+        const terms = document.createElement('input');
+        terms.type = 'checkbox';
+        terms.id = 'terms';
+        terms.required = true;
+        terms.style.cssText = 'width: 1rem; height: 1rem; margin-top: 0.125rem;';
+        const termsText = document.createElement('span');
+        termsText.textContent = 'I agree to the Terms of Service and Privacy Policy';
+        termsLabel.appendChild(terms);
+        termsLabel.appendChild(termsText);
+        form.appendChild(termsLabel);
+
+        const submit = UIComponents.createSubmitButton('Create Account');
+        form.appendChild(submit);
+        container.appendChild(form);
+
+        return container;
+    }
+
+    static createModalCard(title, subtitle) {
+        const isDark = document.documentElement.classList.contains('dark');
+        const card = document.createElement('div');
+        card.style.cssText = `
+            position: relative;
+            width: min(100%, 28rem);
+            max-height: calc(100vh - 2rem);
+            overflow: auto;
+            border-radius: 0.75rem;
+            border: 1px solid ${isDark ? '#1f2937' : '#e5e7eb'};
+            background: ${isDark ? '#111827' : '#ffffff'};
+            color: ${isDark ? '#f9fafb' : '#111827'};
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+            padding: 1.5rem;
+        `;
+
+        const closeButton = document.createElement('button');
+        closeButton.type = 'button';
+        closeButton.setAttribute('aria-label', 'Close dialog');
+        closeButton.textContent = 'Close';
+        closeButton.style.cssText = `
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            border: 0;
+            background: transparent;
+            color: ${isDark ? '#9ca3af' : '#6b7280'};
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+        `;
+        closeButton.onclick = () => UIComponents.hideModal();
+
+        const header = document.createElement('div');
+        header.style.cssText = 'margin-bottom: 1.5rem; padding-right: 4rem;';
+
+        const heading = document.createElement('h2');
+        heading.textContent = title;
+        heading.style.cssText = 'margin: 0 0 0.5rem; font-size: 1.75rem; font-weight: 700;';
+
+        const description = document.createElement('p');
+        description.textContent = subtitle;
+        description.style.cssText = `margin: 0; color: ${isDark ? '#9ca3af' : '#6b7280'};`;
+
+        header.appendChild(heading);
+        header.appendChild(description);
+
+        card.appendChild(closeButton);
+        card.appendChild(header);
+
+        return card;
+    }
+
+    static createInputGroup({ label, id, name, type, placeholder, required, minLength, isDark }) {
+        const group = document.createElement('div');
+
+        const labelElement = document.createElement('label');
+        labelElement.htmlFor = id;
+        labelElement.textContent = label;
+        labelElement.style.cssText = `display: block; margin-bottom: 0.375rem; font-size: 0.875rem; font-weight: 600; color: ${isDark ? '#d1d5db' : '#374151'};`;
+
+        const input = document.createElement('input');
+        input.id = id;
+        input.name = name;
+        input.type = type;
+        input.placeholder = placeholder;
+        input.required = Boolean(required);
+        if (minLength) {
+            input.minLength = minLength;
+        }
+        input.style.cssText = `
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0.75rem 0.875rem;
+            border-radius: 0.375rem;
+            border: 1px solid ${isDark ? '#374151' : '#d1d5db'};
+            background: ${isDark ? '#1f2937' : '#ffffff'};
+            color: ${isDark ? '#f9fafb' : '#111827'};
+            font-size: 0.875rem;
+        `;
+
+        group.appendChild(labelElement);
+        group.appendChild(input);
+
+        return group;
+    }
+
+    static createSubmitButton(text) {
+        const button = document.createElement('button');
+        button.type = 'submit';
+        button.textContent = text;
+        button.style.cssText = `
+            width: 100%;
+            border: 0;
+            border-radius: 0.375rem;
+            background: #dc2626;
+            color: #ffffff;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+        `;
+
+        return button;
+    }
 }
 
 function isButtonElement(element) {
@@ -293,14 +586,38 @@ function bindFormSubmit(form, handler) {
 }
 
 function openLoginModal() {
-    UIComponents.showModal(UIComponents.createLoginForm());
+    if (window.uiComponents && UIComponents.showModal && UIComponents.createLoginForm) {
+        UIComponents.showModal(UIComponents.createLoginForm());
+
+        const form = document.getElementById('loginForm');
+        bindFormSubmit(form, async (formData) => {
+            const email = formData.get('email');
+            const password = formData.get('password');
+            const remember = formData.has('remember');
+
+            const result = await auth.login(email, password, remember);
+            if (result.success) {
+                UIComponents.hideModal();
+                UIComponents.showNotification('Logged in successfully!', 'success');
+                updateUIForAuth();
+            } else {
+                UIComponents.showNotification(result.error, 'error');
+            }
+        });
+
+    } else {
+        // ✅ REQUIRED fallback
+        window.location.href = getPageHref('login');
+    }
+}
 
     const form = document.getElementById('loginForm');
     bindFormSubmit(form, async (formData) => {
         const email = formData.get('email');
         const password = formData.get('password');
+        const remember = formData.has('remember');
 
-        const result = await auth.login(email, password);
+        const result = await auth.login(email, password, remember);
         if (result.success) {
             UIComponents.hideModal();
             UIComponents.showNotification('Logged in successfully!', 'success');
@@ -312,7 +629,38 @@ function openLoginModal() {
 }
 
 function openSignupModal() {
-    UIComponents.showModal(UIComponents.createSignupForm());
+    if (window.uiComponents && UIComponents.showModal && UIComponents.createSignupForm) {
+        UIComponents.showModal(UIComponents.createSignupForm());
+
+        const form = document.getElementById('signupForm');
+        bindFormSubmit(form, async (formData) => {
+            const userData = {
+                username: formData.get('username'),
+                email: formData.get('email'),
+                password: formData.get('password'),
+            };
+            const confirmPassword = formData.get('confirmPassword');
+
+            if (userData.password !== confirmPassword) {
+                UIComponents.showNotification('Passwords do not match', 'error');
+                return;
+            }
+
+            const result = await auth.signup(userData);
+            if (result.success) {
+                UIComponents.hideModal();
+                UIComponents.showNotification('Account created successfully!', 'success');
+                updateUIForAuth();
+            } else {
+                UIComponents.showNotification(result.error, 'error');
+            }
+        });
+
+    } else {
+        // ✅ REQUIRED fallback
+        window.location.href = getPageHref('signup');
+    }
+}
 
     const form = document.getElementById('signupForm');
     bindFormSubmit(form, async (formData) => {
@@ -321,6 +669,12 @@ function openSignupModal() {
             email: formData.get('email'),
             password: formData.get('password'),
         };
+        const confirmPassword = formData.get('confirmPassword');
+
+        if (userData.password !== confirmPassword) {
+            UIComponents.showNotification('Passwords do not match', 'error');
+            return;
+        }
 
         const result = await auth.signup(userData);
         if (result.success) {
