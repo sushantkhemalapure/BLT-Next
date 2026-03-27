@@ -439,7 +439,22 @@ class UIComponents {
         terms.required = true;
         terms.style.cssText = 'width: 1rem; height: 1rem; margin-top: 0.125rem;';
         const termsText = document.createElement('span');
-        termsText.textContent = 'I agree to the Terms of Service and Privacy Policy';
+        const termsLink = document.createElement('a');
+        termsLink.href = getPageHref('terms');
+        termsLink.textContent = 'Terms of Service';
+        termsLink.style.cssText = 'color: #dc2626; font-weight: 600; text-decoration: none;';
+
+        const privacyLink = document.createElement('a');
+        privacyLink.href = getPageHref('privacy');
+        privacyLink.textContent = 'Privacy Policy';
+        privacyLink.style.cssText = 'color: #dc2626; font-weight: 600; text-decoration: none;';
+
+        termsText.append(
+            'I agree to the ',
+            termsLink,
+            ' and ',
+            privacyLink
+        );
         termsLabel.appendChild(terms);
         termsLabel.appendChild(termsText);
         form.appendChild(termsLabel);
@@ -994,6 +1009,12 @@ let currentPage = 1;
 let totalResearchers = 3500;
 
 function updateLeaderboardPagination() {
+  const buttons = document.querySelectorAll(".page-btn");
+  const maxPage = Math.max(buttons.length, 1);
+
+  if (currentPage > maxPage) currentPage = maxPage;
+  if (currentPage < 1) currentPage = 1;
+
   const rows = document.querySelectorAll("#leaderboard-body .leaderboard-row");
 
   const start = (currentPage - 1) * rowsPerPage;
@@ -1030,11 +1051,6 @@ function updateActiveButton() {
       btn.setAttribute("aria-current", "page");
     }
   });
-  const maxVisiblePage = buttons.length;
-
-if (currentPage > maxVisiblePage) {
-  currentPage = maxVisiblePage;
-}
 }
 
 document.addEventListener("htmx:afterSwap", () => {
