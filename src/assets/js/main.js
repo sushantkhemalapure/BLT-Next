@@ -695,11 +695,13 @@ function updateActiveButton() {
 
   buttons.forEach((btn) => {
     btn.classList.remove("bg-red-600", "text-white");
+    btn.removeAttribute("aria-current");
 
     const page = parseInt(btn.textContent.trim());
 
     if (page === currentPage) {
       btn.classList.add("bg-red-600", "text-white");
+      btn.setAttribute("aria-current", "page");
     }
   });
 }
