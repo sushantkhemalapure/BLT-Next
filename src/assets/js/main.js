@@ -1,4 +1,4 @@
-/**
+﻿/**
  * OWASP BLT - Main Application Module
  */
 // ===================================
@@ -629,7 +629,7 @@ function openLoginModal() {
         });
 
     } else {
-        // ✅ REQUIRED fallback
+        // âœ… REQUIRED fallback
         window.location.href = getPageHref('login');
     }
 }
@@ -669,7 +669,7 @@ function openSignupModal() {
         });
 
     } else {
-        // ✅ REQUIRED fallback
+        // âœ… REQUIRED fallback
         window.location.href = getPageHref('signup');
     }
 }
@@ -691,11 +691,7 @@ function setAuthControlState(element, { text, href, onClick }) {
     element.onclick = null;
 
     if (isLinkElement(element)) {
-        if (href) {
-            element.href = href;
-        } else {
-            element.removeAttribute('href');
-        }
+        element.href = href || '#';
     } else {
         element.removeAttribute('href');
         element.type = 'button';
@@ -1087,3 +1083,4 @@ document.getElementById("prev-page")?.addEventListener("click", () => {
     updateActiveButton();
   }
 });
+
