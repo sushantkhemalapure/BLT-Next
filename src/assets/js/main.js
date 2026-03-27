@@ -1,4 +1,4 @@
-﻿/**
+/**
  * OWASP BLT - Main Application Module
  */
 // ===================================
@@ -329,7 +329,7 @@ class UIComponents {
 
         form.appendChild(UIComponents.createInputGroup({
             label: 'Email',
-            id: 'email',
+            id: 'modal-email',
             name: 'email',
             type: 'email',
             placeholder: 'you@example.com',
@@ -339,7 +339,7 @@ class UIComponents {
 
         form.appendChild(UIComponents.createInputGroup({
             label: 'Password',
-            id: 'password',
+            id: 'modal-password',
             name: 'password',
             type: 'password',
             placeholder: '********',
@@ -355,7 +355,7 @@ class UIComponents {
         const remember = document.createElement('input');
         remember.type = 'checkbox';
         remember.name = 'remember';
-        remember.id = 'rememberMe';
+        remember.id = 'modal-rememberMe';
         remember.style.cssText = 'width: 1rem; height: 1rem;';
         rememberLabel.appendChild(remember);
         rememberLabel.appendChild(document.createTextNode('Remember me'));
@@ -385,7 +385,7 @@ class UIComponents {
 
         form.appendChild(UIComponents.createInputGroup({
             label: 'Username',
-            id: 'username',
+            id: 'modal-username',
             name: 'username',
             type: 'text',
             placeholder: 'johndoe',
@@ -396,7 +396,7 @@ class UIComponents {
 
         form.appendChild(UIComponents.createInputGroup({
             label: 'Email Address',
-            id: 'email',
+            id: 'modal-email',
             name: 'email',
             type: 'email',
             placeholder: 'you@example.com',
@@ -406,7 +406,7 @@ class UIComponents {
 
         const passwordGroup = UIComponents.createInputGroup({
             label: 'Password',
-            id: 'password',
+            id: 'modal-password',
             name: 'password',
             type: 'password',
             placeholder: '********',
@@ -422,7 +422,7 @@ class UIComponents {
 
         form.appendChild(UIComponents.createInputGroup({
             label: 'Confirm Password',
-            id: 'confirmPassword',
+            id: 'modal-confirmPassword',
             name: 'confirmPassword',
             type: 'password',
             placeholder: '********',
@@ -435,7 +435,7 @@ class UIComponents {
         termsLabel.style.cssText = `display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.75rem; line-height: 1.5; color: ${isDark ? '#9ca3af' : '#4b5563'};`;
         const terms = document.createElement('input');
         terms.type = 'checkbox';
-        terms.id = 'terms';
+        terms.id = 'modal-terms';
         terms.required = true;
         terms.style.cssText = 'width: 1rem; height: 1rem; margin-top: 0.125rem;';
         const termsText = document.createElement('span');
@@ -629,7 +629,7 @@ function openLoginModal() {
         });
 
     } else {
-        // âœ… REQUIRED fallback
+        // Required fallback
         window.location.href = getPageHref('login');
     }
 }
@@ -669,7 +669,7 @@ function openSignupModal() {
         });
 
     } else {
-        // âœ… REQUIRED fallback
+        // Required fallback
         window.location.href = getPageHref('signup');
     }
 }
@@ -819,35 +819,43 @@ function setupEventHandlers() {
 // ===================================
 function updateUIForAuth() {
     const user = state.getUser();
-    const loginBtn = document.getElementById('loginBtn');
-    const signupBtn = document.getElementById('signupBtn');
+    const loginControls = document.querySelectorAll('#loginBtn, [data-auth-control="login"]');
+    const signupControls = document.querySelectorAll('#signupBtn, [data-auth-control="signup"]');
     const loginHref = getPageHref('login');
     const signupHref = getPageHref('signup');
     const profileHref = getPageHref('profile');
 
     if (user && state.isAuthenticated) {
-        setAuthControlState(loginBtn, {
-            text: user.username,
-            href: isLinkElement(loginBtn) ? profileHref : null,
-            onClick: isButtonElement(loginBtn) ? () => navigateTo(profileHref) : null,
+        loginControls.forEach((loginControl) => {
+            setAuthControlState(loginControl, {
+                text: user.username,
+                href: isLinkElement(loginControl) ? profileHref : null,
+                onClick: isButtonElement(loginControl) ? () => navigateTo(profileHref) : null,
+            });
         });
 
-        setAuthControlState(signupBtn, {
-            text: 'Logout',
-            href: isLinkElement(signupBtn) ? '#' : null,
-            onClick: handleLogout,
+        signupControls.forEach((signupControl) => {
+            setAuthControlState(signupControl, {
+                text: 'Logout',
+                href: isLinkElement(signupControl) ? '#' : null,
+                onClick: handleLogout,
+            });
         });
     } else {
-        setAuthControlState(loginBtn, {
-            text: 'Login',
-            href: isLinkElement(loginBtn) ? loginHref : null,
-            onClick: isButtonElement(loginBtn) ? openLoginModal : null,
+        loginControls.forEach((loginControl) => {
+            setAuthControlState(loginControl, {
+                text: 'Login',
+                href: isLinkElement(loginControl) ? loginHref : null,
+                onClick: isButtonElement(loginControl) ? openLoginModal : null,
+            });
         });
 
-        setAuthControlState(signupBtn, {
-            text: 'Sign Up',
-            href: isLinkElement(signupBtn) ? signupHref : null,
-            onClick: isButtonElement(signupBtn) ? openSignupModal : null,
+        signupControls.forEach((signupControl) => {
+            setAuthControlState(signupControl, {
+                text: 'Sign Up',
+                href: isLinkElement(signupControl) ? signupHref : null,
+                onClick: isButtonElement(signupControl) ? openSignupModal : null,
+            });
         });
     }
 }
