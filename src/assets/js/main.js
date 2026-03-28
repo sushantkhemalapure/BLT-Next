@@ -702,10 +702,34 @@ function setAuthControlState(element, { text, href, onClick }) {
     }
 }
 
+function setMobileMenuState(button, menu, isOpen) {
+    button.setAttribute('aria-expanded', String(isOpen));
+    button.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
+    menu.classList.toggle('hidden', !isOpen);
+    menu.setAttribute('aria-hidden', String(!isOpen));
+}
+
+function setupMobileMenu() {
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+
+    if (!mobileMenuBtn || !mobileMenu) return;
+
+    mobileMenuBtn.setAttribute('aria-controls', 'mobileMenu');
+    setMobileMenuState(mobileMenuBtn, mobileMenu, !mobileMenu.classList.contains('hidden'));
+
+    mobileMenuBtn.onclick = () => {
+        const nextIsOpen = mobileMenu.classList.contains('hidden');
+        setMobileMenuState(mobileMenuBtn, mobileMenu, nextIsOpen);
+    };
+}
+
 // ===================================
 // Event Handlers
 // ===================================
 function setupEventHandlers() {
+    setupMobileMenu();
+
     // Theme Toggle
     const themeToggle = document.getElementById('themeToggle');
     if (themeToggle) {
